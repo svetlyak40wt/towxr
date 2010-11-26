@@ -1,7 +1,7 @@
 from __future__ import with_statement
 
 import sys
-import elementflow as e
+import elementflow
 
 from opster import command
 
@@ -65,7 +65,7 @@ def convert(input_file, output_file, indent = False):
     """
     reader = unicode_csv_reader(input_file)
 
-    with e.xml(
+    with elementflow.xml(
             output_file,
             'rss',
             attrs = dict(version = '2.0'),
@@ -87,7 +87,6 @@ def main(
     input_filename = ('i', 'STDIN', 'Input filename'),
     output_filename = ('o', 'STDOUT', 'Output filename'),
     format = ('f', False, 'Format output'),
-    encoding = ('e', 'utf-8', 'Input file encoding'),
 ):
     """ Converts from CSV format to the WXR
 (Wordpress's import/export format)
