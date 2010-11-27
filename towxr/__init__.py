@@ -52,6 +52,7 @@ def write_item(xml, item):
                     c.element('wp:meta_value', text = CData(value))
 
         c.element('title', text = CData(item.get('post_title', '')))
+        c.element('dc:creator', text = CData(item.get('post_author', '')))
         c.element('content:encoded', text = CData(item.get('post_post', '')))
         c.element('excerpt:encoded', text = CData(item.get('post_excerpt', '')))
 
@@ -59,7 +60,7 @@ def write_item(xml, item):
         write_tags(c, item.get('post_tags', ''), 'tag')
 
 
-def convert(input_file, output_file, indent = False):
+def convert(input_file, output_file):
     """ This function converts data from CSV file
         to the WXR.
     """
@@ -76,17 +77,16 @@ def convert(input_file, output_file, indent = False):
                 dc = "http://purl.org/dc/elements/1.1/",
                 wp = "http://wordpress.org/export/1.0/",
             ),
-            indent = indent,
+            indent = True,
     ) as xml:
         for item in reader:
             write_item(xml, item)
 
 
-@command(usage = '%name -i input.csv -o output.wxr')
+@command(usage = '%name -f input.csv -t output.wxr')
 def main(
-    input_filename = ('i', 'STDIN', 'Input filename'),
-    output_filename = ('o', 'STDOUT', 'Output filename'),
-    format = ('f', False, 'Format output'),
+    input_filename = ('f', 'STDIN', 'Input filename'),
+    output_filename = ('t', 'STDOUT', 'Output filename'),
 ):
     """ Converts from CSV format to the WXR
 (Wordpress's import/export format)
@@ -97,6 +97,6 @@ def main(
          open(input_filename) as input_file:
         with output_filename == 'STDOUT' and sys.stdout or \
              open(output_filename, 'w') as output_file:
-            convert(input_file, output_file, indent = format)
+            convert(input_file, output_file)
 
 

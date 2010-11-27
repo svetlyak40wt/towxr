@@ -50,7 +50,7 @@ def unicode_csv_reader(*args, **kwargs):
 
     for line in reader:
         yield dict(
-            (key, force_unicode(value))
+            (key.strip(), force_unicode(value))
             for key, value in line.items()
         )
 

@@ -5,3 +5,4 @@ env
 examples
 inputs
 *.pyc
+output
