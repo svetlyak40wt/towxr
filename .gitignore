@@ -6,3 +6,10 @@ examples
 inputs
 *.pyc
 output
+bin
+build
+develop-eggs
+parts
+assets
+eggs
+.installed.cfg
