@@ -7,34 +7,54 @@ from opster import command
 
 from . utils import nice, CData, patch_elemenflow, unicode_csv_reader
 
-def write_tags(xml, text, domain):
-    """ Splits comma-separated tags or categories
-        and writes them to the XML.
+def write_tags(domain):
+    """ Returns function with writes tags
+        or categories with given domain.
     """
-    for tag in text.split(','):
-        tag = tag.strip()
-        if tag != '':
-            if domain == 'category':
-                # skip domain for the 'category' domain and
-                # item without namespaces
-                attrs = {}
-            else:
-                attrs = dict(domain = domain)
+    def _write_tags(xml, text):
+        """ Splits comma-separated tags or categories
+            and writes them to the XML.
+        """
+        for tag in text.split(','):
+            tag = tag.strip()
+            if tag != '':
+                if domain == 'category':
+                    # skip domain for the 'category' domain and
+                    # item without namespaces
+                    attrs = {}
+                else:
+                    attrs = dict(domain = domain)
 
-            xml.element(
-                'category',
-                attrs = attrs,
-                text = CData(tag)
-            )
-            xml.element(
-                'category',
-                attrs = dict(
-                    domain = domain,
-                    nicename = nice(tag),
-                ),
-                text = CData(tag)
-            )
+                xml.element(
+                    'category',
+                    attrs = attrs,
+                    text = CData(tag)
+                )
+                xml.element(
+                    'category',
+                    attrs = dict(
+                        domain = domain,
+                        nicename = nice(tag),
+                    ),
+                    text = CData(tag)
+                )
+    return _write_tags
 
+def write_xml_element(tag):
+    return lambda xml, text: xml.element(tag, text = CData(text))
+
+# A map of actions to be executed when key exists in the row
+# each value in this map is function, which take
+# xml container as it's first argument, and field text as second
+FIELDS_MAP = {
+    'post_title':       write_xml_element('title'),
+    'post_author':      write_xml_element('dc:creator'),
+    'creator':          write_xml_element('dc:creator'),
+    'post_post':        write_xml_element('content:encoded'),
+    'post_excerpt':     write_xml_element('excerpt:encoded'),
+    'post_categories':  write_tags('category'),
+    'post_tags':        write_tags('tag'),
+}
 
 def write_item(xml, item):
     """ This function writes single item into the xml stream.
@@ -51,13 +71,11 @@ def write_item(xml, item):
                     c.element('wp:meta_key', text = CData(key))
                     c.element('wp:meta_value', text = CData(value))
 
-        c.element('title', text = CData(item.get('post_title', '')))
-        c.element('dc:creator', text = CData(item.get('post_author', '')))
-        c.element('content:encoded', text = CData(item.get('post_post', '')))
-        c.element('excerpt:encoded', text = CData(item.get('post_excerpt', '')))
-
-        write_tags(c, item.get('post_categories', ''), 'category')
-        write_tags(c, item.get('post_tags', ''), 'tag')
+        for key, value in item.iteritems():
+            if not key.startswith('custom_field'):
+                processor = FIELDS_MAP.get(key)
+                if processor is not None:
+                    processor(c, value)
 
 
 def convert(input_file, output_file):
