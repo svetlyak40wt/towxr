@@ -19,12 +19,8 @@ def nice(tag):
 
 
 class CData(unicode):
-    def __len__(self):
-        """ Hack to prevent element flow's
-            pretty printer from wrapping the CDATA
-            text
-        """
-        return 10
+    pass
+
 
 def patch_elemenflow():
     elementflow_escape = elementflow.escape

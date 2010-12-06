@@ -13,7 +13,7 @@ setup(
     license = 'MIT License',
     packages = find_packages(),
     install_requires = [
-        'elementflow',
+        'elementflow >= 0.3',
         'opster',
     ],
     entry_points = {

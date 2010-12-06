@@ -78,6 +78,7 @@ def convert(input_file, output_file):
                 wp = "http://wordpress.org/export/1.0/",
             ),
             indent = True,
+            text_wrap = False,
     ) as xml:
         for item in reader:
             write_item(xml, item)
